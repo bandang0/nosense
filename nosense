@@ -2,4 +2,51 @@
 
 # Make no sense of your code.
 
-echo "Soon, soon..."
+usage="nosense LANG DIR"
+langs="Python2, C"
+
+if [[ $# -lt 2 ]]
+then
+    echo $usage
+    exit 0
+fi
+
+case $1 in
+    Python2)
+        reserved=$(cat python2.txt)
+        exten=py
+        ;;
+    C)
+        reserved=$(cat c.txt)
+        exten=c
+        ;;
+    *)
+        echo "Unkown language $1."
+        echo "Available languages: $langs."
+        exit 1
+        ;;
+esac
+
+rm -rf no$2
+cp -r $2 no$2
+
+sources=$(find no$2 -type f -name *.$exten)
+words=
+
+echo $sources
+
+for file in $sources
+do
+    words="$words $(grep -o -E '\w+' $file | grep -v -E $reserved | sort -u)"
+done
+
+words=$(echo $words | sort -u)
+echo $words
+
+for file in $sources
+do
+  for word in $words
+  do
+    sed -i "s/\b$word\b/xxx/g" $file
+  done
+done
